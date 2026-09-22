@@ -288,10 +288,14 @@ function MediaCard({ item, onOpen }) {
         )}
       </button>
       <div className="media-meta">
-        <div>
-          <span>{item.label || item.category}</span>
-          <h3>{item.title || "UNTITLED STUDY"}</h3>
-        </div>
+        {(item.title || item.label) ? (
+          <div>
+            {item.label && <span>{item.label}</span>}
+            {item.title && <h3>{item.title}</h3>}
+          </div>
+        ) : (
+          <span className="media-spacer" aria-hidden="true" />
+        )}
         <button
           type="button"
           className="share-toggle"
@@ -407,8 +411,8 @@ function Lightbox({ items, index, onClose, onIndex }) {
           <img src={source} alt={item.title || item.category} data-testid="lightbox-image" />
         )}
         <div className="lightbox-caption">
-          <span>{item.label || item.category}</span>
-          <h3>{item.title || "UNTITLED STUDY"}</h3>
+          {item.label && <span>{item.label}</span>}
+          {item.title && <h3>{item.title}</h3>}
         </div>
       </div>
       {items.length > 1 && (
