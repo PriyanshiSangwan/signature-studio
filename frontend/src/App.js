@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -117,7 +117,18 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [viewerIndex, setViewerIndex] = useState(-1);
+  const [authed, setAuthed] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const nav = useNavigate();
+
+  const reloadItems = useCallback(
+    (category) =>
+      client
+        .get("/portfolio", { params: { category, media_type: "reel" } })
+        .then((r) => setItems(r.data.items))
+        .catch((err) => setError(errorText(err))),
+    [],
+  );
 
   useEffect(() => {
     Promise.all([
@@ -130,17 +141,48 @@ function Home() {
       })
       .catch((err) => setError(errorText(err)))
       .finally(() => setLoading(false));
+    client
+      .get("/auth/me")
+      .then(() => setAuthed(true))
+      .catch(() => setAuthed(false));
   }, []);
 
   useEffect(() => {
     if (!selected) return;
     setLoading(true);
-    client
-      .get("/portfolio", { params: { category: selected, media_type: "reel" } })
-      .then((r) => setItems(r.data.items))
-      .catch((err) => setError(errorText(err)))
-      .finally(() => setLoading(false));
-  }, [selected]);
+    reloadItems(selected).finally(() => setLoading(false));
+  }, [selected, reloadItems]);
+
+  const uploadReels = async (files) => {
+    if (!files.length) return;
+    setUploading(true);
+    setError("");
+    try {
+      for (const file of files) {
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        await client.post("/admin/portfolio", {
+          category: selected,
+          media_type: "reel",
+          title: "",
+          label: "",
+          media_url: "",
+          media_data: base64,
+          mime_type: file.type,
+          featured: false,
+        });
+      }
+      await reloadItems(selected);
+    } catch (err) {
+      setError(errorText(err));
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const openCategory = (category) => {
     setSelected(category);
@@ -163,6 +205,9 @@ function Home() {
             items={items}
             loading={loading}
             error={error}
+            authed={authed}
+            uploading={uploading}
+            onUpload={uploadReels}
             onBack={closeCategory}
             onOpenViewer={setViewerIndex}
           />
@@ -240,7 +285,13 @@ function Home() {
   );
 }
 
-function WorkView({ category, items, loading, error, onBack, onOpenViewer }) {
+function WorkView({ category, items, loading, error, authed, uploading, onUpload, onBack, onOpenViewer }) {
+  const inputRef = useRef(null);
+  const handleFiles = (event) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length) onUpload(files);
+    event.target.value = "";
+  };
   return (
     <section className="work-view" data-testid="portfolio-section">
       <div className="work-toolbar work-toolbar-bold">
@@ -261,9 +312,9 @@ function WorkView({ category, items, loading, error, onBack, onOpenViewer }) {
           {error}
         </p>
       )}
-      {loading ? (
+      {loading || uploading ? (
         <div className="loading-state" data-testid="portfolio-loading">
-          <Loader2 className="spin" /> LOADING WORK
+          <Loader2 className="spin" /> {uploading ? "UPLOADING REELS" : "LOADING WORK"}
         </div>
       ) : items.length ? (
         <div className="media-grid" data-testid="portfolio-grid">
@@ -275,6 +326,28 @@ function WorkView({ category, items, loading, error, onBack, onOpenViewer }) {
         <div className="empty-state" data-testid="portfolio-empty">
           <span>+</span>
           <p>NO REELS IN THIS CATEGORY YET</p>
+          {authed && (
+            <>
+              <input
+                ref={inputRef}
+                type="file"
+                accept="video/*"
+                multiple
+                hidden
+                onChange={handleFiles}
+                data-testid="empty-upload-input"
+              />
+              <button
+                type="button"
+                className="designs-cta"
+                onClick={() => inputRef.current?.click()}
+                data-testid="empty-upload-button"
+              >
+                UPLOAD REELS
+                <ArrowUpRight size={22} strokeWidth={2.5} />
+              </button>
+            </>
+          )}
         </div>
       )}
     </section>
