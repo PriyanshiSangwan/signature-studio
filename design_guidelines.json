@@ -1,0 +1,39 @@
+{
+  "app_name": "SIGNATURE STUDIO Portfolio & CMS",
+  "archetype": "LUXURY & EDITORIAL (Archetype 5 - High-End Creative Studio)",
+  "typography": {
+    "heading_font": "Playfair Display",
+    "body_font": "Inter",
+    "mono_font": "JetBrains Mono"
+  },
+  "colors": {
+    "background": "#0F0F10",
+    "surface": "#18181B",
+    "border": "#27272A",
+    "primary": "#E4E4E7",
+    "accent": "#D4AF37",
+    "muted": "#A1A1AA"
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-xl bg-black/60 border border-white/10",
+    "shadows": "shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
+    "texture": "subtle grain noise overlay"
+  },
+  "layout_strategy": "Asymmetric Bento Grid with clean category switching between Reels and Designs",
+  "key_features": [
+    "Niche/category filtering based on Figma design",
+    "Dynamic Reels portfolio view with video preview",
+    "Designs portfolio view with high-res imagery",
+    "Owner-only CMS with email/password authentication",
+    "Direct uploads and hosted media URLs for items",
+    "Persistent local/backend storage for CMS entries",
+    "Contact info on every page (signaturestudio02@gmail.com, +91 9521174243)"
+  ],
+  "image_urls": {
+    "editorial_portrait_1": "https://images.unsplash.com/photo-1788500657805-54dac5cf6ed8?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "editorial_portrait_2": "https://images.unsplash.com/photo-1772631537341-03d01be06c2b?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "editorial_fashion_3": "https://images.pexels.com/photos/33714925/pexels-photo-33714925.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "architecture_interior_1": "https://images.unsplash.com/photo-1724582586495-d050726cf354?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "architecture_interior_2": "https://images.unsplash.com/photo-1567016376408-0226e4d0c1ea?crop=entropy&cs=srgb&fm=jpg&q=85"
+  }
+}
