@@ -1,0 +1,36 @@
+/* Feature additions: lightbox, share menu, admin tabs, team/category rows */
+.media-card{position:relative}
+.media-thumb{background:transparent;border:0;cursor:pointer;display:block;padding:0;position:relative;width:100%}
+.media-thumb video,.media-thumb img{aspect-ratio:1/1.15;background:#121319;display:block;object-fit:cover;width:100%}
+.featured-flag{align-items:center;background:#e3a13e;color:#101116;display:inline-flex;font-family:'DM Mono',monospace;font-size:8px;gap:4px;left:9px;letter-spacing:.12em;padding:5px 8px;position:absolute;top:9px;z-index:1}
+.share-toggle{align-items:center;background:transparent;border:1px solid var(--line);color:#b1b2bc;cursor:pointer;display:flex;height:30px;justify-content:center;transition:background .15s,color .15s;width:30px}
+.share-toggle:hover{background:#e3a13e;border-color:#e3a13e;color:#101116}
+.share-menu{background:#0e0f14;border-top:1px solid var(--line);display:flex;flex-direction:column;padding:8px 10px}
+.share-option{align-items:center;background:transparent;border:0;color:#dcdcdf;cursor:pointer;display:flex;font-family:'DM Mono',monospace;font-size:10px;gap:9px;letter-spacing:.05em;padding:8px 6px;text-align:left;text-decoration:none}
+.share-option:hover{color:#e3a13e}
+.share-close{color:#8a8c96;font-size:9px;padding-top:6px}
+.lightbox{align-items:center;background:rgba(3,4,7,.94);display:flex;inset:0;justify-content:center;padding:24px;position:fixed;z-index:20}
+.lightbox-frame{align-items:center;color:#f2f0eb;display:flex;flex-direction:column;gap:14px;max-height:90vh;max-width:min(90vw,1000px)}
+.lightbox-frame video,.lightbox-frame img{background:#0a0a0a;max-height:78vh;max-width:100%;object-fit:contain}
+.lightbox-caption{color:#c8c9d1;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;text-align:center}
+.lightbox-caption h3{color:#f2f0eb;font-family:'Archivo Black',Impact,sans-serif;font-size:18px;letter-spacing:0;margin:6px 0 0}
+.lightbox-caption span{color:#e3a13e}
+.lightbox-close{background:transparent;border:0;color:#f2f0eb;cursor:pointer;position:absolute;right:22px;top:22px}
+.lightbox-nav{align-items:center;background:rgba(255,255,255,.06);border:0;color:#f2f0eb;cursor:pointer;display:flex;height:44px;justify-content:center;position:absolute;top:50%;transform:translateY(-50%);transition:background .2s;width:44px}
+.lightbox-nav:hover{background:#e3a13e;color:#101116}
+.lightbox-prev{left:22px}
+.lightbox-next{right:22px}
+.admin-tabs{border-bottom:1px solid var(--line);display:flex;gap:6px;margin-top:22px;padding-bottom:10px}
+.admin-tabs button{align-items:center;background:transparent;border:1px solid var(--line);color:#8a8c96;cursor:pointer;display:flex;font-family:'DM Mono',monospace;font-size:10px;gap:7px;letter-spacing:.08em;padding:9px 14px}
+.admin-tabs button.active,.admin-tabs button:hover{background:#f2f0eb;border-color:#f2f0eb;color:#101116}
+.admin-cta{display:flex;gap:9px}
+.star-active{color:#e3a13e!important}
+.checkbox-row{align-items:center;color:#999aa4;display:flex;flex-direction:row!important;font-family:'DM Mono',monospace;font-size:9px;gap:9px;letter-spacing:.05em}
+.checkbox-row input{margin:0;width:auto}
+.team-actions{align-items:center;display:flex;gap:6px}
+.team-actions select{background:#0e0f14;border:1px solid var(--line);color:#f2f0eb;font-family:'DM Mono',monospace;font-size:10px;padding:6px 8px}
+.team-actions button:disabled,.team-actions select:disabled{cursor:not-allowed;opacity:.45}
+.portfolio-form select{background:#0e0f14;color:#f2f0eb}
+.portfolio-form select option{background:#0e0f14}
+.hero h1{max-width:820px;margin-left:auto;margin-right:auto}
+@media(max-width:700px){.lightbox-nav{height:38px;width:38px}.lightbox-prev{left:8px}.lightbox-next{right:8px}.lightbox-close{right:12px;top:12px}.admin-tabs{overflow-x:auto}.team-actions{flex-wrap:wrap;justify-content:flex-end}}
