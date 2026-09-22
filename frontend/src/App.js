@@ -111,13 +111,13 @@ function Footer() {
 // ---------- Public site ----------
 function Home() {
   const [categories, setCategories] = useState([]);
-  const [designs, setDesigns] = useState([]);
+  const [designCount, setDesignCount] = useState(0);
   const [selected, setSelected] = useState("");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [viewerIndex, setViewerIndex] = useState(-1);
-  const [designIndex, setDesignIndex] = useState(-1);
+  const nav = useNavigate();
 
   useEffect(() => {
     Promise.all([
@@ -126,7 +126,7 @@ function Home() {
     ])
       .then(([cats, des]) => {
         setCategories(cats.data.categories);
-        setDesigns(des.data.items);
+        setDesignCount(des.data.items.length);
       })
       .catch((err) => setError(errorText(err)))
       .finally(() => setLoading(false));
@@ -216,17 +216,17 @@ function Home() {
                 </div>
               )}
             </section>
-            {designs.length > 0 && (
-              <section className="category-section" data-testid="designs-section">
-                <div className="section-label">
-                  <span>CREATIVE DESIGN</span>
-                  <span>{String(designs.length).padStart(2, "0")} PIECES</span>
-                </div>
-                <div className="media-grid" data-testid="designs-grid">
-                  {designs.map((item, index) => (
-                    <MediaCard item={item} key={item.id} onOpen={() => setDesignIndex(index)} />
-                  ))}
-                </div>
+            {designCount > 0 && (
+              <section className="designs-cta-section" data-testid="designs-cta-section">
+                <button
+                  type="button"
+                  className="designs-cta"
+                  onClick={() => nav("/designs")}
+                  data-testid="see-designs-button"
+                >
+                  SEE OUR CREATIVE DESIGNS
+                  <ArrowUpRight size={22} strokeWidth={2.5} />
+                </button>
               </section>
             )}
           </>
@@ -236,9 +236,6 @@ function Home() {
       {viewerIndex >= 0 && (
         <Lightbox items={items} index={viewerIndex} onClose={() => setViewerIndex(-1)} onIndex={setViewerIndex} />
       )}
-      {designIndex >= 0 && (
-        <Lightbox items={designs} index={designIndex} onClose={() => setDesignIndex(-1)} onIndex={setDesignIndex} />
-      )}
     </div>
   );
 }
@@ -246,14 +243,14 @@ function Home() {
 function WorkView({ category, items, loading, error, onBack, onOpenViewer }) {
   return (
     <section className="work-view" data-testid="portfolio-section">
-      <div className="work-toolbar">
+      <div className="work-toolbar work-toolbar-bold">
         <button onClick={onBack} className="back-control" data-testid="portfolio-back-button">
-          <ArrowLeft size={15} /> ALL NICHES
+          <ArrowLeft size={16} /> ALL NICHES
         </button>
-        <span data-testid="current-category-label">{category.toUpperCase()}</span>
-        <span className="work-tabs-static">
-          <Film size={13} /> REELS
+        <span className="work-toolbar-category" data-testid="current-category-label">
+          {category.toUpperCase()}
         </span>
+        <span className="work-toolbar-tag">REELS</span>
       </div>
       <div className="work-heading">
         <p className="micro-label">{category.toUpperCase()} / SELECTED WORK</p>
@@ -281,6 +278,68 @@ function WorkView({ category, items, loading, error, onBack, onOpenViewer }) {
         </div>
       )}
     </section>
+  );
+}
+
+function DesignsPage() {
+  const [designs, setDesigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [viewerIndex, setViewerIndex] = useState(-1);
+  const nav = useNavigate();
+
+  useEffect(() => {
+    client
+      .get("/portfolio", { params: { media_type: "design" } })
+      .then((r) => setDesigns(r.data.items))
+      .catch((err) => setError(errorText(err)))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <div className="dark-shell">
+      <Header />
+      <main className="home-main">
+        <section className="work-view" data-testid="designs-page">
+          <div className="work-toolbar work-toolbar-bold">
+            <button onClick={() => nav("/")} className="back-control" data-testid="designs-back-button">
+              <ArrowLeft size={16} /> BACK TO HOME
+            </button>
+            <span className="work-toolbar-category">CREATIVE DESIGN</span>
+            <span className="work-toolbar-tag">{String(designs.length).padStart(2, "0")} PIECES</span>
+          </div>
+          <div className="work-heading">
+            <p className="micro-label">SIGNATURE STUDIO / DESIGN LIBRARY</p>
+            <h1>DESIGNS</h1>
+          </div>
+          {error && (
+            <p className="error-message" data-testid="designs-error">
+              {error}
+            </p>
+          )}
+          {loading ? (
+            <div className="loading-state" data-testid="designs-loading">
+              <Loader2 className="spin" /> LOADING DESIGNS
+            </div>
+          ) : designs.length ? (
+            <div className="media-grid" data-testid="designs-grid">
+              {designs.map((item, index) => (
+                <MediaCard item={item} key={item.id} onOpen={() => setViewerIndex(index)} />
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state" data-testid="designs-empty">
+              <span>+</span>
+              <p>NO DESIGNS YET</p>
+            </div>
+          )}
+        </section>
+      </main>
+      <Footer />
+      {viewerIndex >= 0 && (
+        <Lightbox items={designs} index={viewerIndex} onClose={() => setViewerIndex(-1)} onIndex={setViewerIndex} />
+      )}
+    </div>
   );
 }
 
@@ -1356,6 +1415,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/designs" element={<DesignsPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
