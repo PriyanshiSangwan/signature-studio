@@ -56,6 +56,9 @@ class LoginInput(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8)
 
+class RegisterInput(LoginInput):
+    name: str = Field(default="Studio Owner", min_length=2, max_length=80)
+
 class PortfolioInput(BaseModel):
     category: str = Field(min_length=1, max_length=80)
     media_type: str
@@ -83,6 +86,20 @@ async def login(payload: LoginInput, response: Response, request: Request):
     response.set_cookie("refresh_token", refresh, httponly=True, secure=True, samesite="none", max_age=604800, path="/")
     return {"id": str(user["_id"]), "email": user["email"], "role": user["role"], "name": user.get("name", "Owner")}
 
+@api.post("/auth/register")
+async def register(payload: RegisterInput, response: Response):
+    if await db.users.count_documents({"role": "admin"}, limit=1):
+        raise HTTPException(409, "An owner account already exists. Please sign in instead.")
+    email = payload.email.lower()
+    if await db.users.find_one({"email": email}):
+        raise HTTPException(409, "That email is already registered.")
+    result = await db.users.insert_one({"email": email, "password_hash": password_hash(payload.password), "name": payload.name, "role": "admin", "created_at": datetime.now(timezone.utc)})
+    access = token(str(result.inserted_id), email, "access", 15)
+    refresh = token(str(result.inserted_id), email, "refresh", 10080)
+    response.set_cookie("access_token", access, httponly=True, secure=True, samesite="none", max_age=900, path="/")
+    response.set_cookie("refresh_token", refresh, httponly=True, secure=True, samesite="none", max_age=604800, path="/")
+    return {"id": str(result.inserted_id), "email": email, "role": "admin", "name": payload.name}
+
 @api.post("/auth/logout")
 async def logout(response: Response):
     response.delete_cookie("access_token", path="/")
@@ -96,7 +113,7 @@ async def me(user: dict = Depends(current_admin)):
 @api.get("/portfolio/categories")
 async def categories():
     stored = await db.portfolio.distinct("category")
-    defaults = ["Social Media", "Brand", "Personal", "Product", "Lifestyle"]
+    defaults = ["Restaurant / Café", "Gym / Fitness", "Healthcare", "Fashion / Retail", "Hotel & Resort", "Creator / Brand"]
     return {"categories": list(dict.fromkeys(stored + defaults))}
 
 @api.get("/portfolio")
@@ -147,7 +164,7 @@ async def seed_admin():
 
 @app.on_event("startup")
 async def startup():
-    await seed_admin()
+    await db.users.create_index("email", unique=True)
 
 app.include_router(api)
 app.add_middleware(CORSMiddleware, allow_origins=[os.environ["FRONTEND_URL"]], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
