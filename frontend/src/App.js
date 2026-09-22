@@ -12,11 +12,12 @@ import {
   Layers,
   Link2,
   Loader2,
-  LockKeyhole,
   LogOut,
   Mail,
+  MapPin,
   MessageCircle,
   Pencil,
+  Phone,
   Plus,
   Share2,
   Star,
@@ -33,7 +34,7 @@ import "@/features.css";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const client = axios.create({ baseURL: API, withCredentials: true });
-const contact = { phone: "+91 9521174243", email: "signaturestudio02@gmail.com" };
+const contact = { phone: "+91 9521174243", email: "signaturestudio02@gmail.com", location: "Udaipur, Rajasthan" };
 const LOGO_ASSET = "https://customer-assets-cm19k8pv.emergentagent.net/job_studio-portfolio-65/artifacts/e2n22xze_IMG_8064.PNG";
 const CATEGORY_IMAGES = {
   "Restaurant / Café": "https://images.unsplash.com/photo-1702450900245-a86084f9e31d?auto=format&fit=crop&w=900&q=85",
@@ -63,40 +64,46 @@ function Header({ authed = false }) {
   return (
     <header className="site-header">
       <Logo testId="header-brand-logo" />
-      <div className="header-right">
-        <div className="header-contact">
-          <a href={`tel:${contact.phone}`} data-testid="header-phone">
-            {contact.phone}
-          </a>
-          <a href={`mailto:${contact.email}`} data-testid="header-email">
-            {contact.email}
-          </a>
-        </div>
-        {authed ? (
+      {authed && (
+        <div className="header-right">
           <Link to="/admin" className="owner-link" data-testid="admin-dashboard-link">
             STUDIO DESK <ArrowUpRight size={13} />
           </Link>
-        ) : (
-          <Link to="/login" className="owner-link" data-testid="owner-login-link">
-            <LockKeyhole size={13} /> OWNER ACCESS
-          </Link>
-        )}
-      </div>
+        </div>
+      )}
     </header>
   );
 }
 
 function Footer() {
+  const digits = contact.phone.replace(/[^0-9]/g, "");
   return (
     <footer className="site-footer">
       <Logo testId="footer-brand-logo" />
       <span data-testid="footer-slogan">we create your signature edits &amp; design</span>
-      <a href={`tel:${contact.phone}`} data-testid="footer-phone">
-        {contact.phone}
-      </a>
-      <a href={`mailto:${contact.email}`} data-testid="footer-email">
-        {contact.email}
-      </a>
+      <div className="footer-contact" data-testid="footer-contact">
+        <div className="footer-line" data-testid="footer-phone-line">
+          <a href={`tel:${contact.phone}`} className="footer-phone" data-testid="footer-phone">
+            <Phone size={13} aria-label="Call" /> {contact.phone}
+          </a>
+          <a
+            href={`https://wa.me/${digits}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-whatsapp"
+            data-testid="footer-whatsapp"
+            aria-label="WhatsApp"
+          >
+            <MessageCircle size={13} /> WhatsApp
+          </a>
+        </div>
+        <a href={`mailto:${contact.email}`} className="footer-line" data-testid="footer-email">
+          <Mail size={13} /> {contact.email}
+        </a>
+        <span className="footer-line" data-testid="footer-location">
+          <MapPin size={13} /> {contact.location}
+        </span>
+      </div>
     </footer>
   );
 }
