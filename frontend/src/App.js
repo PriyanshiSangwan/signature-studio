@@ -154,35 +154,50 @@ function Home() {
   }, [selected, reloadItems]);
 
   const uploadReels = async (files) => {
-    if (!files.length) return;
-    setUploading(true);
-    setError("");
-    try {
-      for (const file of files) {
-        const base64 = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-        await client.post("/admin/portfolio", {
-          category: selected,
-          media_type: "reel",
-          title: "",
-          label: "",
-          media_url: "",
-          media_data: base64,
-          mime_type: file.type,
-          featured: false,
-        });
+  if (!files.length) return;
+
+  setUploading(true);
+  setError("");
+
+  try {
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "signature_studio_reels");
+
+      const uploadRes = await fetch(
+        "https://api.cloudinary.com/v1_1/dv6ab0bds/video/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!uploadRes.ok) {
+        throw new Error("Cloudinary upload failed");
       }
-      await reloadItems(selected);
-    } catch (err) {
-      setError(errorText(err));
-    } finally {
-      setUploading(false);
+
+      const cloudinary = await uploadRes.json();
+
+      await client.post("/admin/portfolio", {
+        category: selected,
+        media_type: "reel",
+        title: "",
+        label: "",
+        media_url: cloudinary.secure_url,
+        media_data: "",
+        mime_type: file.type,
+        featured: false,
+      });
     }
-  };
+
+    await reloadItems(selected);
+  } catch (err) {
+    setError(errorText(err));
+  } finally {
+    setUploading(false);
+  }
+};
 
   const openCategory = (category) => {
     setSelected(category);
