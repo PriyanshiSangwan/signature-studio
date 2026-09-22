@@ -357,7 +357,7 @@ async def forgot_password(payload: ForgotInput):
         reset_url = f"{FRONTEND_URL}/reset-password?token={raw}"
         try:
             await send_password_reset_email(email, reset_url)
-        except HTTPException:
+        except Exception:
             logger.exception("password reset email delivery failed for %s", email)
     return {"ok": True}
 
@@ -544,7 +544,7 @@ async def invite_member(payload: InviteInput, user: dict = Depends(require_owner
     invite_url = f"{FRONTEND_URL}/accept-invite?token={raw}"
     try:
         await send_invite_email(email, invite_url, role, user["name"])
-    except HTTPException:
+    except Exception:
         logger.exception("invite email delivery failed for %s", email)
     doc = await db.users.find_one({"_id": result.inserted_id})
     return _clean_user(doc)

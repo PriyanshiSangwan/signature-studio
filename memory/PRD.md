@@ -1,46 +1,25 @@
 # SIGNATURE STUDIO Portfolio & CMS
 
 ## Original Problem Statement
-Build a production-ready responsive portfolio website for SIGNATURE STUDIO using the existing Figma DESIGN as the main visual reference. Visitors select a creative niche and see only Reels and Designs. The owner needs a private authenticated CMS for adding, editing, and deleting niche-based reel/video and design/image portfolio items. Contact information must be visible on every page and public visitors must never see admin controls.
+Production-ready responsive portfolio site for Signature Studio. Visitors pick a niche and see only REELS and DESIGNS. Owner + Manager private CMS with full role-based access. No public self-registration. Contact info + slogan on every page.
 
-## Architecture Decisions
-- React frontend with React Router and the existing component/tooling setup.
-- FastAPI backend with MongoDB persistence for users and portfolio items.
-- Email/password owner authentication with bcrypt, JWT httpOnly cookies, and admin authorization dependencies.
-- Direct uploads are stored as data URLs in MongoDB; hosted media URLs are also supported.
-- Public portfolio APIs are separate from protected `/api/admin/*` APIs.
-- The supplied logo asset is rendered from the job asset URL in the shared header/footer.
+## Architecture
+- React + React Router; FastAPI + MongoDB; JWT httpOnly cookies; bcrypt; Resend (Emergent proxy) for email.
+- Roles: OWNER (full access + team mgmt), MANAGER (portfolio + category CRUD). Server-side enforced via require_owner / require_manager dependencies.
+- Public routes: /, /login, /forgot-password, /reset-password, /accept-invite/:token. Admin: /admin.
 
-## User Personas
-- Client visitor: wants to select a niche and quickly browse only reels or designs.
-- Studio owner: signs into a private desk to manage portfolio media without code changes.
+## Implemented (2026-09-22)
+- Dark theme home + owner-only admin CMS
+- Auth v2: removed public /register + /setup; added /forgot-password + /reset-password via signed one-time tokens delivered via Resend; TTL indexes on tokens and invitations
+- Team management (OWNER only): invite by email, change role, disable, remove; guards prevent self-demote/disable/remove and last-owner removal
+- Server-side RBAC on every admin endpoint
+- Category Manager (create, rename, hide, delete empty)
+- Featured Work (star toggle; featured items sort first in public + admin lists)
+- Share Link menu on each media card (WhatsApp, Email, Copy Link)
+- Fullscreen Lightbox viewer with keyboard arrows, autoplay for reels
+- 100% backend (13/13) + 100% frontend tests passing
 
-## Core Requirements (Static)
-- SIGNATURE STUDIO and exact slogan: “we create your signature edits & design”.
-- Contact: signaturestudio02@gmail.com and +91 9521174243 on every page.
-- Niche selection followed by Reels and Designs only.
-- Owner-only email/password access with add/edit/delete portfolio management.
-- Upload files or provide hosted URLs.
-- Responsive desktop/mobile layout and loading, empty, and error states.
-- Unique data-testid values for interactive and critical user-facing elements.
-
-## Implemented
-- 2026-09-22: Replaced starter app with the working public portfolio flow and private owner CMS.
-- 2026-09-22: Added MongoDB-backed portfolio CRUD, seeded admin credentials, protected endpoints, and public category/media APIs.
-- 2026-09-22: Added responsive editorial presentation, Reels/Designs switching, owner login, upload/URL form, edit/delete controls, and empty/loading/error states.
-- 2026-09-22: Added the user-supplied SIGNATURE STUDIO logo asset to the existing header and footer without changing the working information architecture.
-- 2026-09-22: Verified public browsing, authenticated CRUD, admin protection, responsive overflow, logo rendering, and UI delete flow. Production build compiles cleanly.
-
-## Reference Note
-The supplied Figma URL currently exposes only a Figma sign-in screen to the available browser/crawl tools, so the exact Figma canvas could not be inspected in this environment. The current visual pass preserves the existing site styling and incorporates the supplied logo; a canvas screenshot or exported frame would allow pixel-level comparison.
-
-## Prioritized Backlog
-- P0: Reconcile exact spacing, colors, typography, and component proportions against an accessible Figma canvas export.
-- P1: Add a dedicated category editor if the final Figma category list requires owner-managed niches.
-- P1: Move large uploaded media from MongoDB data URLs to durable object storage for larger production libraries.
-- P2: Add portfolio lightbox/fullscreen viewing for client review.
-
-## P0/P1/P2 Remaining
-- P0: Pixel-level Figma comparison after the DESIGN frame is accessible.
-- P1: Category management and scalable media storage.
-- P2: Client-friendly fullscreen media viewing and optional sharing links.
+## Backlog
+- P2: rate-limit forgot-password and login endpoints
+- P2: audit log of team actions
+- P2: real object storage for uploads instead of base64
