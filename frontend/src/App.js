@@ -129,8 +129,9 @@ function Home() {
   useEffect(() => {
     if (!selected) return;
     setLoading(true);
+    const params = tab === "design" ? { media_type: "design" } : { category: selected, media_type: "reel" };
     client
-      .get("/portfolio", { params: { category: selected, media_type: tab } })
+      .get("/portfolio", { params })
       .then((r) => setItems(r.data.items))
       .catch((err) => setError(errorText(err)))
       .finally(() => setLoading(false));
