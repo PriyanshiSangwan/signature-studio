@@ -12,7 +12,7 @@ import requests
 
 BASE_URL = os.environ["REACT_APP_BACKEND_URL"].rstrip("/")
 OWNER_EMAIL = "signaturestudio02@gmail.com"
-OWNER_PASSWORD = "Studio@LbwV8MnVtFsm7w7P"
+OWNER_PASSWORD = "NewSecure!2026PW"
 
 
 def _mongo_eval(js: str) -> str:
