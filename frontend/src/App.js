@@ -37,12 +37,12 @@ const client = axios.create({ baseURL: API, withCredentials: true });
 const contact = { phone: "+91 9521174243", email: "signaturestudio02@gmail.com", location: "Udaipur, Rajasthan" };
 const LOGO_ASSET = "https://customer-assets-cm19k8pv.emergentagent.net/job_studio-portfolio-65/artifacts/e2n22xze_IMG_8064.PNG";
 const CATEGORY_IMAGES = {
-  "Restaurant / Café": "https://images.unsplash.com/photo-1702450900245-a86084f9e31d?auto=format&fit=crop&w=900&q=85",
-  "Gym / Fitness": "https://images.unsplash.com/photo-1576289412237-698ae5427f27?auto=format&fit=crop&w=900&q=85",
-  Healthcare: "https://images.pexels.com/photos/32721706/pexels-photo-32721706.jpeg?auto=compress&cs=tinysrgb&w=900",
-  "Fashion / Retail": "https://images.unsplash.com/photo-1652561751125-91629417d6ae?auto=format&fit=crop&w=900&q=85",
-  "Hotel & Resort": "https://images.pexels.com/photos/12770192/pexels-photo-12770192.jpeg?auto=compress&cs=tinysrgb&w=900",
-  "Creator / Brand": "https://images.pexels.com/photos/32721706/pexels-photo-32721706.jpeg?auto=compress&cs=tinysrgb&w=900",
+  "Restaurant / Café": "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=900&q=85",
+  "Gym / Fitness": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=85",
+  Healthcare: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=85",
+  "Fashion / Retail": "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=85",
+  "Hotel & Resort": "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=900&q=85",
+  "Creator / Brand": "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?auto=format&fit=crop&w=900&q=85",
 };
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=900&q=85";
 const errorText = (error) => {
@@ -111,17 +111,23 @@ function Footer() {
 // ---------- Public site ----------
 function Home() {
   const [categories, setCategories] = useState([]);
+  const [designs, setDesigns] = useState([]);
   const [selected, setSelected] = useState("");
-  const [tab, setTab] = useState("reel");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [viewerIndex, setViewerIndex] = useState(-1);
+  const [designIndex, setDesignIndex] = useState(-1);
 
   useEffect(() => {
-    client
-      .get("/portfolio/categories")
-      .then((r) => setCategories(r.data.categories))
+    Promise.all([
+      client.get("/portfolio/categories"),
+      client.get("/portfolio", { params: { media_type: "design" } }),
+    ])
+      .then(([cats, des]) => {
+        setCategories(cats.data.categories);
+        setDesigns(des.data.items);
+      })
       .catch((err) => setError(errorText(err)))
       .finally(() => setLoading(false));
   }, []);
@@ -129,17 +135,15 @@ function Home() {
   useEffect(() => {
     if (!selected) return;
     setLoading(true);
-    const params = tab === "design" ? { media_type: "design" } : { category: selected, media_type: "reel" };
     client
-      .get("/portfolio", { params })
+      .get("/portfolio", { params: { category: selected, media_type: "reel" } })
       .then((r) => setItems(r.data.items))
       .catch((err) => setError(errorText(err)))
       .finally(() => setLoading(false));
-  }, [selected, tab]);
+  }, [selected]);
 
   const openCategory = (category) => {
     setSelected(category);
-    setTab("reel");
     setItems([]);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -156,8 +160,6 @@ function Home() {
         {selected ? (
           <WorkView
             category={selected}
-            tab={tab}
-            setTab={setTab}
             items={items}
             loading={loading}
             error={error}
@@ -171,7 +173,7 @@ function Home() {
               <h1>
                 WE CREATE YOUR <span>SIGNATURE</span> EDITS &amp; DESIGN
               </h1>
-              <p className="hero-note">Choose your niche to view Reels and Designs</p>
+              <p className="hero-note">Choose your niche to view Reels</p>
             </section>
             <section className="category-section">
               <div className="section-label">
@@ -214,6 +216,19 @@ function Home() {
                 </div>
               )}
             </section>
+            {designs.length > 0 && (
+              <section className="category-section" data-testid="designs-section">
+                <div className="section-label">
+                  <span>CREATIVE DESIGN</span>
+                  <span>{String(designs.length).padStart(2, "0")} PIECES</span>
+                </div>
+                <div className="media-grid" data-testid="designs-grid">
+                  {designs.map((item, index) => (
+                    <MediaCard item={item} key={item.id} onOpen={() => setDesignIndex(index)} />
+                  ))}
+                </div>
+              </section>
+            )}
           </>
         )}
       </main>
@@ -221,11 +236,14 @@ function Home() {
       {viewerIndex >= 0 && (
         <Lightbox items={items} index={viewerIndex} onClose={() => setViewerIndex(-1)} onIndex={setViewerIndex} />
       )}
+      {designIndex >= 0 && (
+        <Lightbox items={designs} index={designIndex} onClose={() => setDesignIndex(-1)} onIndex={setDesignIndex} />
+      )}
     </div>
   );
 }
 
-function WorkView({ category, tab, setTab, items, loading, error, onBack, onOpenViewer }) {
+function WorkView({ category, items, loading, error, onBack, onOpenViewer }) {
   return (
     <section className="work-view" data-testid="portfolio-section">
       <div className="work-toolbar">
@@ -233,18 +251,13 @@ function WorkView({ category, tab, setTab, items, loading, error, onBack, onOpen
           <ArrowLeft size={15} /> ALL NICHES
         </button>
         <span data-testid="current-category-label">{category.toUpperCase()}</span>
-        <div className="work-tabs">
-          <button className={tab === "reel" ? "active" : ""} onClick={() => setTab("reel")} data-testid="reels-tab">
-            <Film size={13} /> REELS
-          </button>
-          <button className={tab === "design" ? "active" : ""} onClick={() => setTab("design")} data-testid="designs-tab">
-            <ImageIcon size={13} /> DESIGNS
-          </button>
-        </div>
+        <span className="work-tabs-static">
+          <Film size={13} /> REELS
+        </span>
       </div>
       <div className="work-heading">
         <p className="micro-label">{category.toUpperCase()} / SELECTED WORK</p>
-        <h1>{tab === "reel" ? "REELS" : "DESIGNS"}</h1>
+        <h1>REELS</h1>
       </div>
       {error && (
         <p className="error-message" data-testid="portfolio-error">
@@ -264,7 +277,7 @@ function WorkView({ category, tab, setTab, items, loading, error, onBack, onOpen
       ) : (
         <div className="empty-state" data-testid="portfolio-empty">
           <span>+</span>
-          <p>NO {tab === "reel" ? "REELS" : "DESIGNS"} IN THIS CATEGORY YET</p>
+          <p>NO REELS IN THIS CATEGORY YET</p>
         </div>
       )}
     </section>
