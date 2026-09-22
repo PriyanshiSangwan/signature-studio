@@ -164,7 +164,7 @@ async def seed_admin():
 
 @app.on_event("startup")
 async def startup():
-    await db.users.create_index("email", unique=True)
+    await seed_admin()
 
 app.include_router(api)
 app.add_middleware(CORSMiddleware, allow_origins=[os.environ["FRONTEND_URL"]], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])

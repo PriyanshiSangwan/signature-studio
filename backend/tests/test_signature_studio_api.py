@@ -11,7 +11,8 @@ def test_public_and_admin_crud_flow():
     session = requests.Session()
     categories = session.get(f"{BASE_URL}/api/portfolio/categories")
     assert categories.status_code == 200
-    assert "Social Media" in categories.json()["categories"]
+    cats = categories.json()["categories"]
+    assert "Restaurant / Café" in cats and len(cats) >= 6
     public = session.get(f"{BASE_URL}/api/portfolio")
     assert public.status_code == 200 and isinstance(public.json()["items"], list)
     assert session.get(f"{BASE_URL}/api/admin/portfolio").status_code == 401
@@ -32,3 +33,13 @@ def test_public_and_admin_crud_flow():
     assert session.delete(f"{BASE_URL}/api/admin/portfolio/{item_id}").status_code == 200
     assert session.post(f"{BASE_URL}/api/auth/logout").status_code == 200
     assert session.get(f"{BASE_URL}/api/admin/portfolio").status_code == 401
+
+
+def test_register_returns_409_when_owner_exists():
+    r = requests.post(f"{BASE_URL}/api/auth/register", json={"name": "Dup", "email": "dup@example.com", "password": "SomePass123!"})
+    assert r.status_code == 409
+
+
+def test_login_invalid_password_401():
+    r = requests.post(f"{BASE_URL}/api/auth/login", json={"email": EMAIL, "password": "wrongpassword123"})
+    assert r.status_code == 401
