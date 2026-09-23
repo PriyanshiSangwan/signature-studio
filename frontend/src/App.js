@@ -217,7 +217,6 @@ function Home() {
             items={items}
             loading={loading}
             error={error}
-            authed={authed}
             uploading={uploading}
             onUpload={uploadReels}
             onBack={closeCategory}
@@ -273,7 +272,7 @@ function Home() {
                 </div>
               )}
             </section>
-            {designCount > 0 && (
+            
               <section className="designs-cta-section" data-testid="designs-cta-section">
                 <button
                   type="button"
@@ -285,7 +284,7 @@ function Home() {
                   <ArrowUpRight size={22} strokeWidth={2.5} />
                 </button>
               </section>
-            )}
+            )
           </>
         )}
       </main>
@@ -297,7 +296,7 @@ function Home() {
   );
 }
 
-function WorkView({ category, items, loading, error, authed, uploading, onUpload, onBack, onOpenViewer }) {
+function WorkView({ category, items, loading, error, uploading, onUpload, onBack, onOpenViewer }) {
   const inputRef = useRef(null);
   const handleFiles = (event) => {
     const files = Array.from(event.target.files || []);
@@ -338,8 +337,7 @@ function WorkView({ category, items, loading, error, authed, uploading, onUpload
         <div className="empty-state" data-testid="portfolio-empty">
           <span>+</span>
           <p>NO REELS IN THIS CATEGORY YET</p>
-          {authed && (
-            <>
+          
               <input
                 ref={inputRef}
                 type="file"
