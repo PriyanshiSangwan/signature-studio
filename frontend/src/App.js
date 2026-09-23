@@ -356,8 +356,7 @@ function WorkView({ category, items, loading, error, uploading, onUpload, onBack
                 UPLOAD REELS
                 <ArrowUpRight size={22} strokeWidth={2.5} />
               </button>
-            </>
-          )}
+
         </div>
       )}
     </section>
