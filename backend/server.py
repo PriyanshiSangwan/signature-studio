@@ -32,7 +32,9 @@ from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://signature-studio-a15i3dxvh-priyanshi-team.vercel.app/",
+        "https://signature-studio-topaz.vercel.app",
+    "https://signature-studio-git-main-priyanshi-team.vercel.app",
+    "https://signature-studio-fvci5732n-priyanshi-team.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
