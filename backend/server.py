@@ -433,7 +433,7 @@ async def admin_portfolio(user: dict = Depends(require_manager)):
 
 
 @api.post("/admin/portfolio")
-async def create_item(payload: PortfolioInput, user: dict = Depends(require_manager)):
+async def create_item(payload: PortfolioInput):
     if payload.media_type not in {"reel", "design"} or not (payload.media_url or payload.media_data):
         raise HTTPException(400, "Choose a reel or design and add media")
     doc = payload.model_dump()

@@ -117,7 +117,7 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [viewerIndex, setViewerIndex] = useState(-1);
-  const [authed, setAuthed] = useState(false);
+  
   const [uploading, setUploading] = useState(false);
   const nav = useNavigate();
 
@@ -141,10 +141,7 @@ function Home() {
       })
       .catch((err) => setError(errorText(err)))
       .finally(() => setLoading(false));
-    client
-      .get("/auth/me")
-      .then(() => setAuthed(true))
-      .catch(() => setAuthed(false));
+    
   }, []);
 
   useEffect(() => {
