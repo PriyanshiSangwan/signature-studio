@@ -27,6 +27,17 @@ mongo_url = os.environ["MONGO_URL"]
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ["DB_NAME"]]
 app = FastAPI(title="Signature Studio API")
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://signature-studio-a15i3dxvh-priyanshi-team.vercel.app/",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 api = APIRouter(prefix="/api")
 JWT_ALGORITHM = "HS256"
 EMAIL_BASE_URL = "https://integrations.emergentagent.com"
