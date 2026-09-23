@@ -638,7 +638,10 @@ async def shutdown():
 app.include_router(api)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://signature-studio-a15i3dxvh-priyanshi-team.vercel.app"],
+    allow_origins=["https://signature-studio-topaz.vercel.app",
+        "https://signature-studio-git-main-priyanshi-team.vercel.app",
+        "https://signature-studio-9gocxd32-priyanshi-team.vercel.app",
+        ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
